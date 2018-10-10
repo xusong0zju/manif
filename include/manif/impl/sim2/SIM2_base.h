@@ -36,6 +36,7 @@ public:
 
   Transformation transform() const;
   Rotation rotation() const;
+  Rotation rotationScaled() const;
   Translation translation() const;
 
   SIM2Base<_Derived>& setIdentity();
@@ -64,6 +65,7 @@ public:
   Scalar real() const;
   Scalar imag() const;
   Scalar angle() const;
+  Scalar scale() const;
 
   Scalar x() const;
   Scalar y() const;
@@ -73,8 +75,10 @@ template <typename _Derived>
 typename SIM2Base<_Derived>::Transformation
 SIM2Base<_Derived>::transform() const
 {
+  using std::exp;
+
   Transformation T(Transformation::Identity());
-  T.template block<2,2>(0,0) = rotation();
+  T.template block<2,2>(0,0) = rotation() * exp(scale());
   T(0,2) = x();
   T(1,2) = y();
   return T;
@@ -89,6 +93,14 @@ SIM2Base<_Derived>::rotation() const
 }
 
 template <typename _Derived>
+typename SIM2Base<_Derived>::Rotation
+SIM2Base<_Derived>::rotationScaled() const
+{
+  using std::exp;
+  return rotation() * exp(scale());
+}
+
+template <typename _Derived>
 typename SIM2Base<_Derived>::Translation
 SIM2Base<_Derived>::translation() const
 {
@@ -100,7 +112,7 @@ SIM2Base<_Derived>&
 SIM2Base<_Derived>::setIdentity()
 {
   coeffs_nonconst().setZero();
-  coeffs_nonconst()(2) = 1;
+  coeffs_nonconst()(3) = 1;
   return *this;
 }
 
@@ -240,14 +252,14 @@ template <typename _Derived>
 typename SIM2Base<_Derived>::Scalar
 SIM2Base<_Derived>::real() const
 {
-  return coeffs()(2);
+  return coeffs()(3);
 }
 
 template <typename _Derived>
 typename SIM2Base<_Derived>::Scalar
 SIM2Base<_Derived>::imag() const
 {
-  return coeffs()(3);
+  return coeffs()(4);
 }
 
 template <typename _Derived>
@@ -256,6 +268,13 @@ SIM2Base<_Derived>::angle() const
 {
   using std::atan2;
   return atan2(imag(), real());
+}
+
+template <typename _Derived>
+typename SIM2Base<_Derived>::Scalar
+SIM2Base<_Derived>::scale() const
+{
+  return coeffs()(3);
 }
 
 template <typename _Derived>

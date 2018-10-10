@@ -31,7 +31,7 @@ struct traits<SIM2<_Scalar>>
   static constexpr int Dim     = ManifoldProperties<Base>::Dim;
   static constexpr int DoF     = ManifoldProperties<Base>::DoF;
   static constexpr int N       = ManifoldProperties<Base>::N;
-  static constexpr int RepSize = 4;
+  static constexpr int RepSize = 5;
 
   using DataType = Eigen::Matrix<Scalar, RepSize, 1>;
 
@@ -70,8 +70,9 @@ public:
   ~SIM2() = default;
 
   SIM2(const DataType& d);
-  SIM2(const Scalar x, const Scalar y, const Scalar theta);
-  SIM2(const Scalar x, const Scalar y, const Scalar real, const Scalar imag);
+  SIM2(const Scalar x, const Scalar y, const Scalar scale, const Scalar theta);
+  SIM2(const Scalar x, const Scalar y, const Scalar scale,
+       const Scalar real, const Scalar imag);
 
   /// Manifold common API
 
@@ -84,6 +85,7 @@ public:
   using Base::angle;
   using Base::real;
   using Base::imag;
+  using Base::scale;
   using Base::x;
   using Base::y;
 
@@ -105,8 +107,9 @@ SIM2<_Scalar>::SIM2(const DataType& d)
 }
 
 template <typename _Scalar>
-SIM2<_Scalar>::SIM2(const Scalar x, const Scalar y, const Scalar theta)
-  : SIM2(DataType(x, y, cos(theta), sin(theta)))
+SIM2<_Scalar>::SIM2(const Scalar x, const Scalar y,
+                    const Scalar scale, const Scalar theta)
+  : SIM2(DataType(x, y, scale, cos(theta), sin(theta)))
 {
   using std::cos;
   using std::sin;
@@ -114,8 +117,9 @@ SIM2<_Scalar>::SIM2(const Scalar x, const Scalar y, const Scalar theta)
 
 template <typename _Scalar>
 SIM2<_Scalar>::SIM2(const Scalar x, const Scalar y,
-                  const Scalar real, const Scalar imag)
-  : SIM2(DataType(x, y, real, imag))
+                    const Scalar scale,
+                    const Scalar real, const Scalar imag)
+  : SIM2(DataType(x, y, scale, real, imag))
 {
   //
 }

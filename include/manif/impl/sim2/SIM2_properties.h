@@ -19,7 +19,7 @@ template <typename _Derived>
 struct ManifoldProperties<SIM2Base<_Derived>>
 {
   static constexpr int Dim = 2; /// @brief Space dimension
-  static constexpr int DoF = 3; /// @brief Degrees of freedom
+  static constexpr int DoF = 4; /// @brief Degrees of freedom
   static constexpr int N   = 3; /// @brief Dimension of transformation matrix
 };
 
@@ -27,7 +27,7 @@ template <typename _Derived>
 struct ManifoldProperties<SIM2TangentBase<_Derived>>
 {
   static constexpr int Dim = 2; /// @brief Space dimension
-  static constexpr int DoF = 3; /// @brief Degrees of freedom
+  static constexpr int DoF = 4; /// @brief Degrees of freedom
 };
 
 } /* namespace internal */

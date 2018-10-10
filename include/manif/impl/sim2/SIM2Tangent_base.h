@@ -45,6 +45,7 @@ public:
 
   Scalar x() const;
   Scalar y() const;
+  Scalar scale() const;
   Scalar angle() const;
 };
 
@@ -52,60 +53,21 @@ template <typename _Derived>
 typename SIM2TangentBase<_Derived>::LieAlg
 SIM2TangentBase<_Derived>::hat() const
 {
-  return ( LieAlg() <<
-             Scalar(0), -angle(),   x(),
-             angle(),    Scalar(0), y(),
-             Scalar(0),  Scalar(0), Scalar(0) ).finished();
+  MANIF_NOT_IMPLEMENTED_YET;
+  LieAlg hat = LieAlg::Zero();
+  //hat.template topLeftCorner<2,2>() = todo;
 }
 
 template <typename _Derived>
 typename SIM2TangentBase<_Derived>::Manifold
 SIM2TangentBase<_Derived>::retract(OptJacobianRef J_m_t) const
 {
-  using std::abs;
-  using std::cos;
-  using std::sin;
-
-  const Scalar theta = angle();
-  const Scalar cos_theta = cos(theta);
-  const Scalar sin_theta = sin(theta);
-  const Scalar theta_sq = theta * theta;
-
-  Scalar A,  // sin_theta_by_theta
-         B;  // one_minus_cos_theta_by_theta
-
-  if (theta_sq < Constants<Scalar>::eps_s)
-  {
-    // Taylor approximation
-    A = Scalar(1) - Scalar(1. / 6.) * theta_sq;
-    B = Scalar(.5) * theta - Scalar(1. / 24.) * theta * theta_sq;
-  }
-  else
-  {
-    // Euler
-    A = sin_theta / theta;
-    B = (Scalar(1) - cos_theta) / theta;
-  }
+  MANIF_NOT_IMPLEMENTED_YET;
 
   if (J_m_t)
   {
     // Jr
-    J_m_t->setIdentity();
-    (*J_m_t)(0,0) =  A;
-    (*J_m_t)(0,1) =  B;
-    (*J_m_t)(1,0) = -B;
-    (*J_m_t)(1,1) =  A;
-
-    if (theta_sq < Constants<Scalar>::eps_s)
-    {
-      (*J_m_t)(0,2) = -y() / Scalar(2) + theta * x() / Scalar(6);
-      (*J_m_t)(1,2) =  x() / Scalar(2) + theta * y() / Scalar(6);
-    }
-    else
-    {
-      (*J_m_t)(0,2) = (-y() + theta*x() + y()*cos_theta - x()*sin_theta)/theta_sq;
-      (*J_m_t)(1,2) = ( x() + theta*y() - x()*cos_theta - y()*sin_theta)/theta_sq;
-    }
+    (*J_m_t) = rjac();
   }
 
   return Manifold( A * x() - B * y(),
@@ -117,40 +79,10 @@ template <typename _Derived>
 typename SIM2TangentBase<_Derived>::Jacobian
 SIM2TangentBase<_Derived>::rjac() const
 {
-//  const Scalar theta = angle();
-//  const Scalar cos_theta = cos(theta);
-//  const Scalar sin_theta = sin(theta);
-//  const Scalar theta_sq = theta * theta;
+  using std::exp;
 
-//  Scalar A,  // sin_theta_by_theta
-//         B;  // one_minus_cos_theta_by_theta
-
-//  if (abs(theta) < Constants<Scalar>::eps)
-//  {
-//    // Taylor approximation
-//    A = Scalar(1) - Scalar(1. / 6.) * theta_sq;
-//    B = Scalar(.5) * theta - Scalar(1. / 24.) * theta * theta_sq;
-//  }
-//  else
-//  {
-//    // Euler
-//    A = sin_theta / theta;
-//    B = (Scalar(1) - cos_theta) / theta;
-//  }
-
-//  Jacobian Jr = Jacobian::Identity();
-//  Jr(0,0) =  A;
-//  Jr(0,1) =  B;
-//  Jr(1,0) = -B;
-//  Jr(1,1) =  A;
-
-//  Jr(0,2) = (-y() + theta*x() + y()*cos_theta - x()*sin_theta)/theta_sq;
-//  Jr(1,2) = ( x() + theta*y() - x()*cos_theta - y()*sin_theta)/theta_sq;
-
-//  return Jr;
-
-  Jacobian Jr;
-  retract(Jr);
+  Jacobian Jr = Jacobian::Identity();
+  Jr.template topLeftCorner<2,2> = rotation().tranpose() * exp(-scale());
 
   return Jr;
 }
@@ -159,35 +91,10 @@ template <typename _Derived>
 typename SIM2TangentBase<_Derived>::Jacobian
 SIM2TangentBase<_Derived>::ljac() const
 {
-  const Scalar theta = angle();
-  const Scalar cos_theta = cos(theta);
-  const Scalar sin_theta = sin(theta);
-  const Scalar theta_sq = theta * theta;
-
-  Scalar A,  // sin_theta_by_theta
-         B;  // one_minus_cos_theta_by_theta
-
-  if (theta_sq < Constants<Scalar>::eps_s)
-  {
-    // Taylor approximation
-    A = Scalar(1) - Scalar(1. / 6.) * theta_sq;
-    B = Scalar(.5) * theta - Scalar(1. / 24.) * theta * theta_sq;
-  }
-  else
-  {
-    // Euler
-    A = sin_theta / theta;
-    B = (Scalar(1) - cos_theta) / theta;
-  }
-
   Jacobian Jl = Jacobian::Identity();
-  Jl(0,0) =  A;
-  Jl(0,1) = -B;
-  Jl(1,0) =  B;
-  Jl(1,1) =  A;
 
-  Jl(0,2) = ( y() + theta*x() - y()*cos_theta - x()*sin_theta)/theta_sq;
-  Jl(1,2) = (-x() + theta*y() + x()*cos_theta - y()*sin_theta)/theta_sq;
+  Jl.template block<2,1,0,2>() <<  y(), -x();
+  Jl.template block<2,1,0,3>() << -x(), -y();
 
   return Jl;
 }
@@ -228,6 +135,15 @@ SIM2TangentBase<_Derived>::angle() const
 {
   return coeffs().z();
 }
+
+template <typename _Derived>
+typename SIM2TangentBase<_Derived>::Scalar
+SIM2TangentBase<_Derived>::scale() const
+{
+  return coeffs()(3);
+}
+
+
 
 } /* namespace manif */
 

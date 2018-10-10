@@ -58,7 +58,8 @@ public:
   SIM2Tangent() = default;
 
   SIM2Tangent(const DataType& v);
-  SIM2Tangent(const Scalar x, const Scalar y, const Scalar theta);
+  SIM2Tangent(const Scalar x, const Scalar y,
+              const Scalar scale, const Scalar theta);
 
   /// Tangent common API
 
@@ -71,6 +72,7 @@ public:
   /// SIM2Tangent specific API
 
   using Base::angle;
+  using Base::scale;
 
 protected:
 
@@ -88,9 +90,10 @@ SIM2Tangent<_Scalar>::SIM2Tangent(const DataType& theta)
 
 template <typename _Scalar>
 SIM2Tangent<_Scalar>::SIM2Tangent(const Scalar x,
-                                const Scalar y,
-                                const Scalar theta)
-  : SIM2Tangent(DataType(x, y, theta))
+                                  const Scalar y,
+                                  const Scalar scale,
+                                  const Scalar theta)
+  : SIM2Tangent(DataType(x, y, scale, theta))
 {
   //
 }

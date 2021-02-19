@@ -42,7 +42,7 @@ endif()
 function(manif_add_gtest target)
   add_executable(${target} ${ARGN})
   add_dependencies(${target} gtest)
-  target_link_libraries(${target} ${PROJECT_NAME} gtest)
+  target_link_libraries(${target} ${PROJECT_NAME} gtest pthread)
 
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # GCC is not strict enough by default, so enable most of the warnings.
